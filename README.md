@@ -1,5 +1,6 @@
 
 # Cannabis POS - Budtender Business Boost
+<img width="1062" alt="Screenshot 2025-06-14 at 11 32 41 AM" src="https://github.com/user-attachments/assets/d6b3578e-0204-46ab-9bea-dc398f58cecd" />
 
 A comprehensive Point of Sale (POS) system designed specifically for cannabis dispensaries. This web application helps manage inventory, process sales, track orders, manage customers, and integrate with Weedmaps for streamlined operations.
 
