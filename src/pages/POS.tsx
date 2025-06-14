@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { getAllProducts } from '@/lib/database';
 import { Product, CartItem } from '@/types';
@@ -106,7 +105,6 @@ const POS = () => {
               key={product.id}
               product={product}
               onAddToCart={addToCart}
-              showActions={false}
             />
           ))}
         </div>
