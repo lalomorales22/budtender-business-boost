@@ -1,16 +1,19 @@
-
 import { useEffect, useState } from 'react';
 import { getAllProducts, getAllOrders } from '@/lib/database';
 import { Product, Order } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar } from 'lucide-react';
+import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar, FileExport } from 'lucide-react';
+import { exportProducts, exportOrders, exportOrderItems, exportCustomers, exportAllData } from '@/utils/exportUtils';
+import { useToast } from '@/hooks/use-toast';
 
 const Reports = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [timeframe, setTimeframe] = useState('week');
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -24,6 +27,42 @@ const Reports = () => {
       setOrders(allOrders);
     } catch (error) {
       console.error('Error loading data:', error);
+    }
+  };
+
+  const handleExport = (type: string, format: 'csv' | 'json') => {
+    try {
+      switch (type) {
+        case 'products':
+          exportProducts(format);
+          break;
+        case 'orders':
+          exportOrders(format);
+          break;
+        case 'order_items':
+          exportOrderItems(format);
+          break;
+        case 'customers':
+          exportCustomers(format);
+          break;
+        case 'all':
+          exportAllData(format);
+          break;
+        default:
+          return;
+      }
+      
+      toast({
+        title: "Export Successful",
+        description: `${type} data exported as ${format.toUpperCase()}`
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting the data",
+        variant: "destructive"
+      });
     }
   };
 
@@ -89,18 +128,93 @@ const Reports = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reports & Analytics</h1>
-        <Select value={timeframe} onValueChange={setTimeframe}>
-          <SelectTrigger className="w-40">
-            <Calendar className="w-4 h-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="week">This Week</SelectItem>
-            <SelectItem value="month">This Month</SelectItem>
-            <SelectItem value="year">This Year</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-4">
+          <Select value={timeframe} onValueChange={setTimeframe}>
+            <SelectTrigger className="w-40">
+              <Calendar className="w-4 h-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="year">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
+      {/* Export Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileExport className="w-5 h-5" />
+            Export Data
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Products</p>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => handleExport('products', 'csv')}>
+                  CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExport('products', 'json')}>
+                  JSON
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Orders</p>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => handleExport('orders', 'csv')}>
+                  CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExport('orders', 'json')}>
+                  JSON
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Order Items</p>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => handleExport('order_items', 'csv')}>
+                  CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExport('order_items', 'json')}>
+                  JSON
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Customers</p>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => handleExport('customers', 'csv')}>
+                  CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExport('customers', 'json')}>
+                  JSON
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Complete Database</p>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" onClick={() => handleExport('all', 'csv')}>
+                  CSV
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExport('all', 'json')}>
+                  JSON
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

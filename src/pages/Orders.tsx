@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllOrders } from '@/lib/database';
 import { Order } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Orders = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,6 +68,10 @@ const Orders = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleViewDetails = (orderId: number) => {
+    navigate(`/orders/${orderId}`);
   };
 
   return (
@@ -171,7 +176,11 @@ const Orders = () => {
                   <TableCell className="capitalize">{order.payment_method}</TableCell>
                   <TableCell>{getStatusBadge(order.payment_status)}</TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewDetails(order.id)}
+                    >
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </Button>
