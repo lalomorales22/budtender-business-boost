@@ -1,5 +1,4 @@
-
-import { getAllProducts, getAllOrders, getAllOrderItems, getAllCustomers } from '@/lib/database';
+import { getAllProducts, getAllOrders, getAllOrderItems, getAllCustomers, getAllWeedmapsProducts } from '@/lib/database';
 
 export const downloadCSV = (data: any[], filename: string) => {
   if (data.length === 0) return;
@@ -87,12 +86,24 @@ export const exportCustomers = (format: 'csv' | 'json') => {
   }
 };
 
+export const exportWeedmapsProducts = (format: 'csv' | 'json') => {
+  const weedmapsProducts = getAllWeedmapsProducts();
+  const filename = `weedmaps_products_${new Date().toISOString().split('T')[0]}`;
+  
+  if (format === 'csv') {
+    downloadCSV(weedmapsProducts, filename);
+  } else {
+    downloadJSON(weedmapsProducts, filename);
+  }
+};
+
 export const exportAllData = (format: 'csv' | 'json') => {
   const allData = {
     products: getAllProducts(),
     orders: getAllOrders(),
     order_items: getAllOrderItems(),
     customers: getAllCustomers(),
+    weedmaps_products: getAllWeedmapsProducts(),
     exported_at: new Date().toISOString()
   };
   

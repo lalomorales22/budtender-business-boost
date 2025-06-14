@@ -1,4 +1,3 @@
-
 // Browser-compatible database using localStorage
 interface DatabaseResult {
   lastInsertRowid: number;
@@ -12,7 +11,7 @@ export const initDatabase = () => {
   if (isInitialized) return true;
 
   // Initialize empty tables if they don't exist
-  const tables = ['products', 'customers', 'employees', 'orders', 'order_items', 'inventory_transactions'];
+  const tables = ['products', 'customers', 'employees', 'orders', 'order_items', 'inventory_transactions', 'weedmaps_products'];
   
   tables.forEach(table => {
     if (!localStorage.getItem(table)) {
@@ -194,4 +193,70 @@ export const getOrderItemsByOrderId = (orderId: number) => {
 
 export const getAllOrderItems = () => {
   return JSON.parse(localStorage.getItem('order_items') || '[]');
+};
+
+// Weedmaps Products operations
+export const insertWeedmapsProduct = (product: {
+  weedmaps_id?: string;
+  name: string;
+  description?: string;
+  published: boolean;
+  external_id?: string;
+  picture?: string;
+  featured: boolean;
+  category?: string;
+  tags?: string;
+  strain?: string;
+  genetics?: string;
+  gallery_images?: string;
+  cbd_percentage?: number;
+  thc_percentage?: number;
+}): DatabaseResult => {
+  const weedmapsProducts = JSON.parse(localStorage.getItem('weedmaps_products') || '[]');
+  const id = getNextId('weedmaps_products');
+  const timestamp = getCurrentTimestamp();
+  
+  const newProduct = {
+    id,
+    ...product,
+    created_at: timestamp
+  };
+  
+  weedmapsProducts.push(newProduct);
+  localStorage.setItem('weedmaps_products', JSON.stringify(weedmapsProducts));
+  
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+export const getAllWeedmapsProducts = () => {
+  return JSON.parse(localStorage.getItem('weedmaps_products') || '[]');
+};
+
+export const updateWeedmapsProduct = (id: number, updates: any): DatabaseResult => {
+  const weedmapsProducts = JSON.parse(localStorage.getItem('weedmaps_products') || '[]');
+  const index = weedmapsProducts.findIndex((product: any) => product.id === id);
+  
+  if (index === -1) {
+    return { lastInsertRowid: 0, changes: 0 };
+  }
+  
+  weedmapsProducts[index] = {
+    ...weedmapsProducts[index],
+    ...updates
+  };
+  
+  localStorage.setItem('weedmaps_products', JSON.stringify(weedmapsProducts));
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+export const deleteWeedmapsProduct = (id: number): DatabaseResult => {
+  const weedmapsProducts = JSON.parse(localStorage.getItem('weedmaps_products') || '[]');
+  const filteredProducts = weedmapsProducts.filter((product: any) => product.id !== id);
+  
+  if (weedmapsProducts.length === filteredProducts.length) {
+    return { lastInsertRowid: 0, changes: 0 };
+  }
+  
+  localStorage.setItem('weedmaps_products', JSON.stringify(filteredProducts));
+  return { lastInsertRowid: id, changes: 1 };
 };

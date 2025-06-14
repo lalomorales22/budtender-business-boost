@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -8,7 +7,8 @@ import {
   FileText, 
   UserCheck, 
   BarChart3,
-  Home
+  Home,
+  MapPin
 } from 'lucide-react';
 
 const Navigation = () => {
@@ -21,6 +21,7 @@ const Navigation = () => {
     { path: '/orders', label: 'Orders', icon: FileText },
     { path: '/customers', label: 'Customers', icon: Users },
     { path: '/employees', label: 'Employees', icon: UserCheck },
+    { path: '/weedmaps', label: 'Weedmaps', icon: MapPin },
     { path: '/reports', label: 'Reports', icon: BarChart3 },
   ];
 
