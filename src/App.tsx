@@ -7,6 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
+import POS from "./pages/POS";
+import Orders from "./pages/Orders";
+import Customers from "./pages/Customers";
+import Employees from "./pages/Employees";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,12 +28,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
-              {/* Placeholder routes for future pages */}
-              <Route path="/pos" element={<div>POS System - Coming Soon</div>} />
-              <Route path="/orders" element={<div>Orders - Coming Soon</div>} />
-              <Route path="/customers" element={<div>Customers - Coming Soon</div>} />
-              <Route path="/employees" element={<div>Employees - Coming Soon</div>} />
-              <Route path="/reports" element={<div>Reports - Coming Soon</div>} />
+              <Route path="/pos" element={<POS />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/customers" element={<Customers />} />
+              <Route path="/employees" element={<Employees />} />
+              <Route path="/reports" element={<Reports />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
