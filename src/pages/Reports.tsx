@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar, FileExport } from 'lucide-react';
+import { TrendingUp, DollarSign, Package, ShoppingCart, Calendar, FileText } from 'lucide-react';
 import { exportProducts, exportOrders, exportOrderItems, exportCustomers, exportAllData } from '@/utils/exportUtils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -147,7 +147,7 @@ const Reports = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileExport className="w-5 h-5" />
+            <FileText className="w-5 h-5" />
             Export Data
           </CardTitle>
         </CardHeader>
