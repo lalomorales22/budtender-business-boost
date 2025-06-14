@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAllProducts } from '@/lib/database';
+import { getAllProducts, insertOrder, insertOrderItem, updateProduct } from '@/lib/database';
 import { Product, CartItem } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -84,14 +84,54 @@ const POS = () => {
       return;
     }
 
-    // TODO: Process payment and create order
-    toast({
-      title: "Checkout Successful",
-      description: `Order processed with ${paymentMethod} payment`
-    });
-    
-    setCart([]);
-    loadProducts(); // Refresh products to update stock
+    try {
+      const totalAmount = getCartTotal();
+      
+      // Create the order
+      const orderResult = insertOrder({
+        total_amount: totalAmount,
+        payment_method: paymentMethod,
+        payment_status: 'completed'
+      });
+
+      if (orderResult.changes > 0) {
+        const orderId = orderResult.lastInsertRowid;
+        
+        // Create order items and update product stock
+        cart.forEach(item => {
+          // Insert order item
+          insertOrderItem({
+            order_id: orderId,
+            product_id: item.product.id,
+            quantity: item.quantity,
+            unit_price: item.product.price,
+            total_price: item.product.price * item.quantity
+          });
+          
+          // Update product stock
+          const newStockQuantity = item.product.stock_quantity - item.quantity;
+          updateProduct(item.product.id, {
+            stock_quantity: newStockQuantity
+          });
+        });
+
+        toast({
+          title: "Checkout Successful",
+          description: `Order #${orderId} processed with ${paymentMethod} payment - Total: $${totalAmount.toFixed(2)}`
+        });
+        
+        // Clear cart and refresh products
+        setCart([]);
+        loadProducts();
+      }
+    } catch (error) {
+      console.error('Error processing checkout:', error);
+      toast({
+        title: "Checkout Failed",
+        description: "There was an error processing your order",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

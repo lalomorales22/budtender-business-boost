@@ -143,7 +143,7 @@ export const getAllCustomers = () => {
   return JSON.parse(localStorage.getItem('customers') || '[]');
 };
 
-// Future: Order operations
+// Order operations
 export const insertOrder = (order: any): DatabaseResult => {
   const orders = JSON.parse(localStorage.getItem('orders') || '[]');
   const id = getNextId('orders');
@@ -163,4 +163,35 @@ export const insertOrder = (order: any): DatabaseResult => {
 
 export const getAllOrders = () => {
   return JSON.parse(localStorage.getItem('orders') || '[]');
+};
+
+// Order Items operations
+export const insertOrderItem = (orderItem: {
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+}): DatabaseResult => {
+  const orderItems = JSON.parse(localStorage.getItem('order_items') || '[]');
+  const id = getNextId('order_items');
+  
+  const newOrderItem = {
+    id,
+    ...orderItem
+  };
+  
+  orderItems.push(newOrderItem);
+  localStorage.setItem('order_items', JSON.stringify(orderItems));
+  
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+export const getOrderItemsByOrderId = (orderId: number) => {
+  const orderItems = JSON.parse(localStorage.getItem('order_items') || '[]');
+  return orderItems.filter((item: any) => item.order_id === orderId);
+};
+
+export const getAllOrderItems = () => {
+  return JSON.parse(localStorage.getItem('order_items') || '[]');
 };
