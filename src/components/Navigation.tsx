@@ -8,7 +8,8 @@ import {
   UserCheck, 
   BarChart3,
   Home,
-  MapPin
+  MapPin,
+  Building
 } from 'lucide-react';
 
 const Navigation = () => {
@@ -21,6 +22,7 @@ const Navigation = () => {
     { path: '/orders', label: 'Orders', icon: FileText },
     { path: '/customers', label: 'Customers', icon: Users },
     { path: '/employees', label: 'Employees', icon: UserCheck },
+    { path: '/dispensaries', label: 'Dispensaries', icon: Building },
     { path: '/weedmaps', label: 'Weedmaps', icon: MapPin },
     { path: '/reports', label: 'Reports', icon: BarChart3 },
   ];
