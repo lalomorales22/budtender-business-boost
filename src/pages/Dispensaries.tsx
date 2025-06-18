@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,7 @@ import { Search, MapPin, Phone, Clock, Building, Plus, Edit, Trash2 } from 'luci
 import { Dispensary } from '@/types';
 import { getAllDispensaries, insertDispensary, updateDispensary, deleteDispensary, initDatabase } from '@/lib/database';
 import DispensaryForm from '@/components/DispensaryForm';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 const Dispensaries = () => {
   const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
@@ -247,4 +246,3 @@ const Dispensaries = () => {
 };
 
 export default Dispensaries;
-
