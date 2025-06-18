@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number;
   name: string;
@@ -61,4 +60,17 @@ export interface OrderItem {
 export interface CartItem {
   product: Product;
   quantity: number;
+}
+
+export interface Dispensary {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  phone: string;
+  hours: string;
+  license: string;
+  status: 'Active' | 'Pending' | 'Closed';
+  created_at: string;
+  updated_at: string;
 }

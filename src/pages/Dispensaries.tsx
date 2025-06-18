@@ -3,91 +3,27 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, MapPin, Phone, Clock, Building } from 'lucide-react';
-
-interface Dispensary {
-  id: number;
-  name: string;
-  address: string;
-  city: string;
-  phone: string;
-  hours: string;
-  license: string;
-  status: 'Active' | 'Pending' | 'Closed';
-}
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Search, MapPin, Phone, Clock, Building, Plus, Edit, Trash2 } from 'lucide-react';
+import { Dispensary } from '@/types';
+import { getAllDispensaries, insertDispensary, updateDispensary, deleteDispensary, initDatabase } from '@/lib/database';
+import DispensaryForm from '@/components/DispensaryForm';
+import { useToast } from '@/hooks/use-toast';
 
 const Dispensaries = () => {
   const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
   const [filteredDispensaries, setFilteredDispensaries] = useState<Dispensary[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Sample California dispensaries data
-  const californiaDispensaries: Dispensary[] = [
-    {
-      id: 1,
-      name: "Green Valley Cannabis",
-      address: "123 Main St",
-      city: "Los Angeles",
-      phone: "(323) 555-0101",
-      hours: "9:00 AM - 10:00 PM",
-      license: "C10-0000123-LIC",
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "Golden State Dispensary",
-      address: "456 Castro St",
-      city: "San Francisco",
-      phone: "(415) 555-0202",
-      hours: "10:00 AM - 9:00 PM",
-      license: "C10-0000456-LIC",
-      status: "Active"
-    },
-    {
-      id: 3,
-      name: "Pacific Coast Cannabis",
-      address: "789 Beach Blvd",
-      city: "San Diego",
-      phone: "(619) 555-0303",
-      hours: "8:00 AM - 11:00 PM",
-      license: "C10-0000789-LIC",
-      status: "Active"
-    },
-    {
-      id: 4,
-      name: "Valley Green Collective",
-      address: "321 Valley Rd",
-      city: "Sacramento",
-      phone: "(916) 555-0404",
-      hours: "9:00 AM - 10:00 PM",
-      license: "C10-0001234-LIC",
-      status: "Pending"
-    },
-    {
-      id: 5,
-      name: "Emerald Triangle Cannabis",
-      address: "654 Redwood Ave",
-      city: "Oakland",
-      phone: "(510) 555-0505",
-      hours: "10:00 AM - 8:00 PM",
-      license: "C10-0005678-LIC",
-      status: "Active"
-    },
-    {
-      id: 6,
-      name: "Sunset Cannabis Co",
-      address: "987 Sunset Blvd",
-      city: "West Hollywood",
-      phone: "(323) 555-0606",
-      hours: "9:00 AM - 11:00 PM",
-      license: "C10-0009876-LIC",
-      status: "Active"
-    }
-  ];
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingDispensary, setEditingDispensary] = useState<Dispensary | undefined>();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [dispensaryToDelete, setDispensaryToDelete] = useState<number | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    setDispensaries(californiaDispensaries);
-    setFilteredDispensaries(californiaDispensaries);
+    initDatabase();
+    loadDispensaries();
   }, []);
 
   useEffect(() => {
@@ -98,6 +34,66 @@ const Dispensaries = () => {
     );
     setFilteredDispensaries(filtered);
   }, [dispensaries, searchTerm]);
+
+  const loadDispensaries = () => {
+    const data = getAllDispensaries();
+    setDispensaries(data);
+  };
+
+  const handleAddDispensary = (dispensaryData: Omit<Dispensary, 'id' | 'created_at' | 'updated_at'>) => {
+    const result = insertDispensary(dispensaryData);
+    if (result.changes > 0) {
+      loadDispensaries();
+      toast({
+        title: "Success",
+        description: "Dispensary added successfully",
+      });
+    }
+  };
+
+  const handleEditDispensary = (dispensaryData: Omit<Dispensary, 'id' | 'created_at' | 'updated_at'>) => {
+    if (editingDispensary) {
+      const result = updateDispensary(editingDispensary.id, dispensaryData);
+      if (result.changes > 0) {
+        loadDispensaries();
+        setEditingDispensary(undefined);
+        toast({
+          title: "Success",
+          description: "Dispensary updated successfully",
+        });
+      }
+    }
+  };
+
+  const handleDeleteDispensary = () => {
+    if (dispensaryToDelete) {
+      const result = deleteDispensary(dispensaryToDelete);
+      if (result.changes > 0) {
+        loadDispensaries();
+        toast({
+          title: "Success",
+          description: "Dispensary deleted successfully",
+        });
+      }
+      setDispensaryToDelete(null);
+      setDeleteConfirmOpen(false);
+    }
+  };
+
+  const confirmDelete = (id: number) => {
+    setDispensaryToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const openEditForm = (dispensary: Dispensary) => {
+    setEditingDispensary(dispensary);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingDispensary(undefined);
+  };
 
   const getStatusBadge = (status: string) => {
     const statusColors: { [key: string]: 'default' | 'secondary' | 'destructive' } = {
@@ -115,6 +111,10 @@ const Dispensaries = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">California Dispensaries</h1>
+        <Button onClick={() => setIsFormOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Dispensary
+        </Button>
       </div>
 
       {/* Stats */}
@@ -168,7 +168,23 @@ const Dispensaries = () => {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <CardTitle className="text-lg">{dispensary.name}</CardTitle>
-                {getStatusBadge(dispensary.status)}
+                <div className="flex gap-2">
+                  {getStatusBadge(dispensary.status)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openEditForm(dispensary)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => confirmDelete(dispensary.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -202,8 +218,33 @@ const Dispensaries = () => {
           <p className="text-gray-400">Try adjusting your search criteria</p>
         </div>
       )}
+
+      {/* Form Dialog */}
+      <DispensaryForm
+        dispensary={editingDispensary}
+        isOpen={isFormOpen}
+        onClose={closeForm}
+        onSubmit={editingDispensary ? handleEditDispensary : handleAddDispensary}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Dispensary</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this dispensary? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteDispensary}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default Dispensaries;
+

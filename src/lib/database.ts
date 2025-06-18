@@ -11,7 +11,7 @@ export const initDatabase = () => {
   if (isInitialized) return true;
 
   // Initialize empty tables if they don't exist
-  const tables = ['products', 'customers', 'employees', 'orders', 'order_items', 'inventory_transactions', 'weedmaps_products'];
+  const tables = ['products', 'customers', 'employees', 'orders', 'order_items', 'inventory_transactions', 'weedmaps_products', 'dispensaries'];
   
   tables.forEach(table => {
     if (!localStorage.getItem(table)) {
@@ -258,5 +258,71 @@ export const deleteWeedmapsProduct = (id: number): DatabaseResult => {
   }
   
   localStorage.setItem('weedmaps_products', JSON.stringify(filteredProducts));
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+// Dispensary operations
+export const insertDispensary = (dispensary: {
+  name: string;
+  address: string;
+  city: string;
+  phone: string;
+  hours: string;
+  license: string;
+  status: 'Active' | 'Pending' | 'Closed';
+}): DatabaseResult => {
+  const dispensaries = JSON.parse(localStorage.getItem('dispensaries') || '[]');
+  const id = getNextId('dispensaries');
+  const timestamp = getCurrentTimestamp();
+  
+  const newDispensary = {
+    id,
+    ...dispensary,
+    created_at: timestamp,
+    updated_at: timestamp
+  };
+  
+  dispensaries.push(newDispensary);
+  localStorage.setItem('dispensaries', JSON.stringify(dispensaries));
+  
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+export const getAllDispensaries = () => {
+  return JSON.parse(localStorage.getItem('dispensaries') || '[]');
+};
+
+export const getDispensaryById = (id: number) => {
+  const dispensaries = JSON.parse(localStorage.getItem('dispensaries') || '[]');
+  return dispensaries.find((dispensary: any) => dispensary.id === id);
+};
+
+export const updateDispensary = (id: number, updates: any): DatabaseResult => {
+  const dispensaries = JSON.parse(localStorage.getItem('dispensaries') || '[]');
+  const index = dispensaries.findIndex((dispensary: any) => dispensary.id === id);
+  
+  if (index === -1) {
+    return { lastInsertRowid: 0, changes: 0 };
+  }
+  
+  dispensaries[index] = {
+    ...dispensaries[index],
+    ...updates,
+    updated_at: getCurrentTimestamp()
+  };
+  
+  localStorage.setItem('dispensaries', JSON.stringify(dispensaries));
+  return { lastInsertRowid: id, changes: 1 };
+};
+
+export const deleteDispensary = (id: number): DatabaseResult => {
+  const dispensaries = JSON.parse(localStorage.getItem('dispensaries') || '[]');
+  const filteredDispensaries = dispensaries.filter((dispensary: any) => dispensary.id !== id);
+  
+  if (dispensaries.length === filteredDispensaries.length) {
+    return { lastInsertRowid: 0, changes: 0 };
+  }
+  
+  localStorage.setItem('dispensaries', JSON.stringify(filteredDispensaries));
   return { lastInsertRowid: id, changes: 1 };
 };
